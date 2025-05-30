@@ -1,36 +1,39 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
-  private users = []; // Aquí podrías usar TypeORM u otro ORM para gestionar la base de datos.
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
 
-  create(createUserDto: CreateUserDto) {
-    const newUser = { id: Date.now(), ...createUserDto };
-    this.users.push(newUser);
-    return newUser;
+  async create(createUserDto: CreateUserDto) {
+    const newUser = this.userRepository.create(createUserDto);
+    const saved = await this.userRepository.save(newUser);
+    console.log('[CREATE] Usuario guardado:', saved);
+    return saved;
   }
 
   findAll() {
-    return this.users;
+    return this.userRepository.find();
   }
 
   findOne(id: number) {
-    return this.users.find(user => user.id === id);
+    return this.userRepository.findOneBy({ id });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    const userIndex = this.users.findIndex(user => user.id === id);
-    if (userIndex >= 0) {
-      this.users[userIndex] = { ...this.users[userIndex], ...updateUserDto };
-      return this.users[userIndex];
-    }
-    return null;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    await this.userRepository.update(id, updateUserDto);
+    return this.userRepository.findOneBy({ id });
   }
 
-  remove(id: number) {
-    this.users = this.users.filter(user => user.id !== id);
+  async remove(id: number) {
+    await this.userRepository.delete(id);
     return { message: 'Usuario eliminado' };
   }
 }

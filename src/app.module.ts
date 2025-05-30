@@ -9,11 +9,11 @@ import { UserModule } from './user/user.module';
       type: 'mysql',
       host: 'localhost',
       port: 3306,
-      username: 'root', // Usuario por defecto en XAMPP
-      password: '', // Deja vacío si no has configurado una contraseña
+      username: 'root',
+      password: '', // si no usas contraseña en XAMPP
       database: 'gestio_academica_db',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true, // Solo para desarrollo, en producción usa migraciones
+      synchronize: true, // Solo para desarrollo
     }),
     AuthModule, UserModule 
   ],
